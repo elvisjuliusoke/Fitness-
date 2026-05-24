@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Review — Your Fitness OS</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">REVIEW</div>
+    <p class="login-sub">Your personal fitness OS</p>
+    <div class="login-form">
+      <input type="text" id="loginUser" placeholder="Username" class="inp" />
+      <input type="password" id="loginPass" placeholder="Password" class="inp" />
+      <button class="btn-primary" onclick="handleLogin()">Enter</button>
+      <p class="login-hint">Admin: <code>admin / admin123</code> &nbsp;|&nbsp; User: <code>user / user123</code></p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="app hidden">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">RVW</div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-section="dashboard"><span class="nav-icon">◈</span><span>Dashboard</span></a>
+      <a href="#" class="nav-item" data-section="workout"><span class="nav-icon">⚡</span><span>Workout</span></a>
+      <a href="#" class="nav-item" data-section="nutrition"><span class="nav-icon">⬡</span><span>Nutrition</span></a>
+      <a href="#" class="nav-item" data-section="weight"><span class="nav-icon">◉</span><span>Weight</span></a>
+      <a href="#" class="nav-item" data-section="sleep"><span class="nav-icon">◐</span><span>Sleep</span></a>
+      <a href="#" class="nav-item" data-section="records"><span class="nav-icon">▲</span><span>Records</span></a>
+      <a href="#" class="nav-item admin-only hidden" data-section="admin"><span class="nav-icon">⬛</span><span>Admin</span></a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-badge" id="userBadge">U</div>
+      <div>
+        <div id="userNameDisplay" class="user-name">User</div>
+        <div id="userRoleDisplay" class="user-role">member</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">⏏</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <section id="dashboard" class="section active">
+      <div class="section-header">
+        <h1>Good morning<span id="dashGreetName">, User</span> <span class="wave">👋</span></h1>
+        <p class="section-sub" id="dashDate">Sunday, May 24 2026</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card accent-green">
+          <div class="stat-label">Calories Today</div>
+          <div class="stat-val" id="dashCalories">0</div>
+          <div class="stat-goal">/ <span id="calGoal">2000</span> kcal</div>
+        </div>
+        <div class="stat-card accent-blue">
+          <div class="stat-label">Workouts This Week</div>
+          <div class="stat-val" id="dashWorkouts">0</div>
+          <div class="stat-goal">sessions</div>
+        </div>
+        <div class="stat-card accent-orange">
+          <div class="stat-label">Current Weight</div>
+          <div class="stat-val" id="dashWeight">--</div>
+          <div class="stat-goal">kg</div>
+        </div>
+        <div class="stat-card accent-purple">
+          <div class="stat-label">Sleep Last Night</div>
+          <div class="stat-val" id="dashSleep">--</div>
+          <div class="stat-goal">hrs</div>
+        </div>
+      </div>
+      <div class="dash-actions">
+        <button class="action-btn" onclick="claudeAction('log_workout')">⚡ Log Workout</button>
+        <button class="action-btn" onclick="claudeAction('log_meal')">⬡ Log Meal</button>
+        <button class="action-btn" onclick="claudeAction('log_weight')">◉ Log Weight</button>
+        <button class="action-btn" onclick="claudeAction('log_sleep')">◐ Log Sleep</button>
+      </div>
+      <div class="dash-bottom">
+        <div class="recent-card">
+          <h3>Recent Workouts</h3>
+          <div id="recentWorkouts" class="recent-list"><p class="empty">No workouts yet. Log one!</p></div>
+        </div>
+        <div class="recent-card">
+          <h3>Today's Meals</h3>
+          <div id="recentMeals" class="recent-list"><p class="empty">No meals logged today.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── WORKOUT ── -->
+    <section id="workout" class="section">
+      <div class="section-header">
+        <h1>Workout Planner</h1>
+        <p class="section-sub">Build plans & log sessions</p>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Log a Workout</h3>
+          <div class="form-group">
+            <label>Workout Name</label>
+            <input type="text" id="wName" class="inp" placeholder="e.g. Push Day" />
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="wDate" class="inp" />
+          </div>
+          <div class="form-group">
+            <label>Duration (minutes)</label>
+            <input type="number" id="wDuration" class="inp" placeholder="45" />
+          </div>
+          <div class="form-group">
+            <label>Exercises (one per line)</label>
+            <textarea id="wExercises" class="inp" rows="4" placeholder="Bench Press 3x8&#10;Squat 4x6&#10;Pull-ups 3x10"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <input type="text" id="wNotes" class="inp" placeholder="How did it feel?" />
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary" onclick="logWorkout()">Log Workout</button>
+            <button class="btn-ghost" onclick="claudeAction('generate_plan')">✦ AI Generate Plan</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Workout Plan Builder</h3>
+          <div class="form-group">
+            <label>Plan Name</label>
+            <input type="text" id="planName" class="inp" placeholder="My 5-Day Split" />
+          </div>
+          <div class="plan-days" id="planDays">
+            <div class="plan-day">
+              <span class="day-label">Mon</span>
+              <input type="text" class="inp day-inp" placeholder="Chest & Triceps" />
+            </div>
+            <div class="plan-day">
+              <span class="day-label">Tue</span>
+              <input type="text" class="inp day-inp" placeholder="Back & Biceps" />
+            </div>
+            <div class="plan-day">
+              <span class="day-label">Wed</span>
+              <input type="text" class="inp day-inp" placeholder="Rest / Cardio" />
+            </div>
+            <div class="plan-day">
+              <span class="day-label">Thu</span>
+              <input type="text" class="inp day-inp" placeholder="Shoulders" />
+            </div>
+            <div class="plan-day">
+              <span class="day-label">Fri</span>
+              <input type="text" class="inp day-inp" placeholder="Legs" />
+            </div>
+            <div class="plan-day">
+              <span class="day-label">Sat</span>
+              <input type="text" class="inp day-inp" placeholder="Arms / Core" />
+            </div>
+            <div class="plan-day">
+              <span class="day-label">Sun</span>
+              <input type="text" class="inp day-inp" placeholder="Rest" />
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary" onclick="savePlan()">Save Plan</button>
+            <button class="btn-ghost" onclick="claudeAction('generate_plan')">✦ AI Build Plan</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt">
+        <h3>Workout History</h3>
+        <div id="workoutHistory" class="history-list"><p class="empty">No workouts logged yet.</p></div>
+      </div>
+    </section>
+
+    <!-- ── NUTRITION ── -->
+    <section id="nutrition" class="section">
+      <div class="section-header">
+        <h1>Nutrition Tracker</h1>
+        <p class="section-sub">Log meals & track macros</p>
+      </div>
+
+      <div class="macro-bar-wrap">
+        <div class="macro-label-row">
+          <span>Protein <strong id="pVal">0g</strong></span>
+          <span>Carbs <strong id="cVal">0g</strong></span>
+          <span>Fat <strong id="fVal">0g</strong></span>
+          <span>Calories <strong id="calVal">0 kcal</strong></span>
+        </div>
+        <div class="macro-bars">
+          <div class="macro-bar-track"><div class="macro-bar bar-protein" id="barProtein"></div></div>
+          <div class="macro-bar-track"><div class="macro-bar bar-carbs" id="barCarbs"></div></div>
+          <div class="macro-bar-track"><div class="macro-bar bar-fat" id="barFat"></div></div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <h3>Log a Meal</h3>
+          <div class="form-group">
+            <label>Meal Name</label>
+            <input type="text" id="mName" class="inp" placeholder="e.g. Chicken & Rice" />
+          </div>
+          <div class="form-group">
+            <label>Meal Type</label>
+            <select id="mType" class="inp">
+              <option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option>
+            </select>
+          </div>
+          <div class="macro-inputs">
+            <div class="form-group">
+              <label>Calories</label>
+              <input type="number" id="mCal" class="inp" placeholder="500" />
+            </div>
+            <div class="form-group">
+              <label>Protein (g)</label>
+              <input type="number" id="mPro" class="inp" placeholder="30" />
+            </div>
+            <div class="form-group">
+              <label>Carbs (g)</label>
+              <input type="number" id="mCarb" class="inp" placeholder="60" />
+            </div>
+            <div class="form-group">
+              <label>Fat (g)</label>
+              <input type="number" id="mFat" class="inp" placeholder="15" />
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary" onclick="logMeal()">Log Meal</button>
+            <button class="btn-ghost" onclick="claudeAction('log_meal')">✦ Ask Claude</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Nutrition Goals</h3>
+          <div class="form-group">
+            <label>Daily Calorie Goal</label>
+            <input type="number" id="goalCal" class="inp" placeholder="2000" />
+          </div>
+          <div class="form-group">
+            <label>Protein Goal (g)</label>
+            <input type="number" id="goalPro" class="inp" placeholder="150" />
+          </div>
+          <div class="form-group">
+            <label>Carbs Goal (g)</label>
+            <input type="number" id="goalCarb" class="inp" placeholder="200" />
+          </div>
+          <div class="form-group">
+            <label>Fat Goal (g)</label>
+            <input type="number" id="goalFat" class="inp" placeholder="65" />
+          </div>
+          <button class="btn-primary" onclick="saveNutGoals()">Save Goals</button>
+        </div>
+      </div>
+
+      <div class="card mt">
+        <h3>Today's Meals</h3>
+        <div id="mealLog" class="history-list"><p class="empty">No meals logged today.</p></div>
+      </div>
+    </section>
+
+    <!-- ── WEIGHT ── -->
+    <section id="weight" class="section">
+      <div class="section-header">
+        <h1>Weight Trend</h1>
+        <p class="section-sub">Track your progress over time</p>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Log Weight</h3>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="wgDate" class="inp" />
+          </div>
+          <div class="form-group">
+            <label>Weight (kg)</label>
+            <input type="number" id="wgVal" class="inp" step="0.1" placeholder="75.5" />
+          </div>
+          <div class="form-group">
+            <label>Note (optional)</label>
+            <input type="text" id="wgNote" class="inp" placeholder="After morning run..." />
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary" onclick="logWeight()">Log Weight</button>
+            <button class="btn-ghost" onclick="claudeAction('log_weight')">✦ Ask Claude</button>
+          </div>
+          <div class="weight-stats mt">
+            <div class="wstat"><div class="wstat-label">Current</div><div class="wstat-val" id="wCurrent">--</div></div>
+            <div class="wstat"><div class="wstat-label">Start</div><div class="wstat-val" id="wStart">--</div></div>
+            <div class="wstat"><div class="wstat-label">Change</div><div class="wstat-val" id="wChange">--</div></div>
+            <div class="wstat"><div class="wstat-label">Goal</div><div class="wstat-val" id="wGoalDisp">--</div></div>
+          </div>
+          <div class="form-group mt">
+            <label>Weight Goal (kg)</label>
+            <input type="number" id="wGoal" class="inp" step="0.1" placeholder="70" />
+            <button class="btn-ghost mt-sm" onclick="saveWeightGoal()">Set Goal</button>
+          </div>
+        </div>
+        <div class="card chart-card">
+          <h3>Trend Chart</h3>
+          <canvas id="weightChart"></canvas>
+        </div>
+      </div>
+      <div class="card mt">
+        <h3>Weight Log</h3>
+        <div id="weightLog" class="history-list"><p class="empty">No entries yet.</p></div>
+      </div>
+    </section>
+
+    <!-- ── SLEEP ── -->
+    <section id="sleep" class="section">
+      <div class="section-header">
+        <h1>Sleep Tracker</h1>
+        <p class="section-sub">Monitor rest & recovery</p>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Log Sleep</h3>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="slDate" class="inp" />
+          </div>
+          <div class="form-group">
+            <label>Bedtime</label>
+            <input type="time" id="slBed" class="inp" />
+          </div>
+          <div class="form-group">
+            <label>Wake Time</label>
+            <input type="time" id="slWake" class="inp" />
+          </div>
+          <div class="form-group">
+            <label>Quality (1–10)</label>
+            <input type="range" id="slQuality" min="1" max="10" value="7" class="slider" oninput="document.getElementById('slQualVal').textContent=this.value" />
+            <span id="slQualVal" class="slider-val">7</span>
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <input type="text" id="slNote" class="inp" placeholder="Felt rested, vivid dreams..." />
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary" onclick="logSleep()">Log Sleep</button>
+            <button class="btn-ghost" onclick="claudeAction('log_sleep')">✦ Ask Claude</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Sleep Stats</h3>
+          <div class="sleep-stats">
+            <div class="sleep-ring-wrap">
+              <svg viewBox="0 0 120 120" class="sleep-ring">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="var(--border)" stroke-width="10"/>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-purple)" stroke-width="10"
+                  stroke-dasharray="314" stroke-dashoffset="314" id="sleepRingArc"
+                  stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <text x="60" y="55" text-anchor="middle" class="ring-big" id="ringHrs">0h</text>
+                <text x="60" y="72" text-anchor="middle" class="ring-sm">avg sleep</text>
+              </svg>
+            </div>
+            <div class="sleep-mini-stats">
+              <div class="wstat"><div class="wstat-label">Last Night</div><div class="wstat-val" id="lastSleep">--</div></div>
+              <div class="wstat"><div class="wstat-label">7-day Avg</div><div class="wstat-val" id="avgSleep">--</div></div>
+              <div class="wstat"><div class="wstat-label">Best</div><div class="wstat-val" id="bestSleep">--</div></div>
+              <div class="wstat"><div class="wstat-label">Avg Quality</div><div class="wstat-val" id="avgQuality">--</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card mt">
+        <h3>Sleep History</h3>
+        <div id="sleepLog" class="history-list"><p class="empty">No sleep logs yet.</p></div>
+      </div>
+    </section>
+
+    <!-- ── PERSONAL RECORDS ── -->
+    <section id="records" class="section">
+      <div class="section-header">
+        <h1>Personal Records</h1>
+        <p class="section-sub">Your best lifts & achievements</p>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Add Record</h3>
+          <div class="form-group">
+            <label>Exercise</label>
+            <input type="text" id="prExercise" class="inp" placeholder="Bench Press" />
+          </div>
+          <div class="form-group">
+            <label>Value</label>
+            <input type="number" id="prVal" class="inp" step="0.5" placeholder="100" />
+          </div>
+          <div class="form-group">
+            <label>Unit</label>
+            <select id="prUnit" class="inp">
+              <option>kg</option><option>lbs</option><option>reps</option><option>mins</option><option>km</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="prDate" class="inp" />
+          </div>
+          <button class="btn-primary" onclick="addRecord()">Add PR</button>
+        </div>
+        <div class="card">
+          <h3>Quick PRs</h3>
+          <div class="quick-pr-list" id="quickPRs">
+            <div class="pr-item" data-exercise="Bench Press">
+              <span class="pr-name">Bench Press</span>
+              <span class="pr-value" id="pr-bench">-- kg</span>
+            </div>
+            <div class="pr-item" data-exercise="Squat">
+              <span class="pr-name">Squat</span>
+              <span class="pr-value" id="pr-squat">-- kg</span>
+            </div>
+            <div class="pr-item" data-exercise="Deadlift">
+              <span class="pr-name">Deadlift</span>
+              <span class="pr-value" id="pr-deadlift">-- kg</span>
+            </div>
+            <div class="pr-item" data-exercise="Pull-ups">
+              <span class="pr-name">Pull-ups</span>
+              <span class="pr-value" id="pr-pullups">-- reps</span>
+            </div>
+            <div class="pr-item" data-exercise="5K Run">
+              <span class="pr-name">5K Run</span>
+              <span class="pr-value" id="pr-5k">-- mins</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card mt">
+        <h3>All Records</h3>
+        <div id="prList" class="history-list"><p class="empty">No personal records yet. Add your first PR!</p></div>
+      </div>
+    </section>
+
+    <!-- ── ADMIN DASHBOARD ── -->
+    <section id="admin" class="section">
+      <div class="section-header">
+        <h1>⬛ Admin Dashboard</h1>
+        <p class="section-sub">System overview & user management</p>
+      </div>
+      <div class="admin-stats">
+        <div class="admin-stat-card">
+          <div class="admin-stat-num" id="adminTotalUsers">2</div>
+          <div class="admin-stat-label">Total Users</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-num" id="adminWorkouts">0</div>
+          <div class="admin-stat-label">Total Workouts</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-num" id="adminMeals">0</div>
+          <div class="admin-stat-label">Total Meals</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-num" id="adminSleepLogs">0</div>
+          <div class="admin-stat-label">Sleep Logs</div>
+        </div>
+      </div>
+
+      <div class="two-col mt">
+        <div class="card">
+          <h3>User Management</h3>
+          <div class="user-table-wrap">
+            <table class="user-table">
+              <thead><tr><th>User</th><th>Role</th><th>Workouts</th><th>Action</th></tr></thead>
+              <tbody id="adminUserTable">
+                <tr><td>admin</td><td><span class="role-badge admin">Admin</span></td><td id="adminWkCount">0</td><td>—</td></tr>
+                <tr><td>user</td><td><span class="role-badge member">Member</span></td><td>0</td><td><button class="btn-sm" onclick="adminReset()">Reset</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="form-group mt">
+            <label>Add Demo User</label>
+            <div class="inline-form">
+              <input type="text" id="newUserName" class="inp" placeholder="Username" />
+              <button class="btn-primary" onclick="addUser()">Add</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>App Settings</h3>
+          <div class="form-group">
+            <label>App Name</label>
+            <input type="text" id="settingAppName" class="inp" value="Review" />
+          </div>
+          <div class="form-group">
+            <label>Default Calorie Goal</label>
+            <input type="number" id="settingCalGoal" class="inp" value="2000" />
+          </div>
+          <div class="form-group">
+            <label>Default Weight Goal (kg)</label>
+            <input type="number" id="settingWtGoal" class="inp" value="75" />
+          </div>
+          <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+
+          <div class="danger-zone mt">
+            <h4>Danger Zone</h4>
+            <button class="btn-danger" onclick="clearAllData()">Clear All User Data</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt">
+        <h3>Activity Log</h3>
+        <div id="activityLog" class="history-list"><p class="empty">No activity yet.</p></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- CLAUDE MODAL -->
+<div id="claudeModal" class="modal hidden">
+  <div class="modal-overlay" onclick="closeModal()"></div>
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">✦ Ask Claude</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalPrompt" class="modal-prompt"></div>
+    <div id="claudeChat" class="claude-chat"></div>
+    <div class="modal-input-row">
+      <input type="text" id="claudeInput" class="inp" placeholder="Type your reply..." onkeydown="if(event.key==='Enter') sendClaudeMessage()" />
+      <button class="btn-primary" onclick="sendClaudeMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
